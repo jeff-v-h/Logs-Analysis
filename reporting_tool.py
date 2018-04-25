@@ -7,19 +7,21 @@ db = psycopg2.connect("dbname=news")
 cursor = db.cursor()
 
 # Execute a query to fetch and print the 3 most popular articles of all time
-cursor.execute("SELECT * from articles")
+cursor.execute("SELECT path, count(*) as num from log where (status = '200 OK') and (method = 'GET') and (path != '/') group by path order by num desc limit 3")
 results = cursor.fetchall()
-print results
+for x in results:
+	print x[0][9:] + " - " + str(x[1]) + " views"
 
 # Execute a query to fetch and print the authors ordered by most views
 cursor.execute("SELECT * from authors")
 results = cursor.fetchall()
-print results
+#print "authors: "
+#print results
 
 # Execute a query to fetch and print the days with more than 1% of request errors
 cursor.execute("SELECT * from authors")
 results = cursor.fetchall()
-print results
+#print results
 
 # Close the database
 db.close()
