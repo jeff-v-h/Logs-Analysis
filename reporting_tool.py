@@ -7,54 +7,26 @@ db = psycopg2.connect("dbname=news")
 cursor = db.cursor()
 
 # Execute a query to fetch and print the 3 most popular articles of all time
-cursor.execute("SELECT path, count(*) as num from log where (status = '200 OK') and (method = 'GET') and (path != '/') group by path order by num desc limit 3")
+cursor.execute(
+    "SELECT title, count(*) as views from articles, log \
+    where log.path like CONCAT('%', articles.slug, '%') \
+    and (status = '200 OK') group by title \
+    order by views desc limit 3")
 results = cursor.fetchall()
-for x in results:
-	print x[0][9:] + " - " + str(x[1]) + " views"
+print "1. What are the most popular three articles of all time?"
+for result in results:
+    print result[0] + " - " + str(result[1]) + " views"
 
 # Execute a query to fetch and print the authors ordered by most views
 cursor.execute("SELECT * from authors")
 results = cursor.fetchall()
-#print "authors: "
-#print results
+# print "authors: "
+# print results
 
-# Execute a query to fetch and print the days with more than 1% of request errors
+# Execute a query to fetch and print days with more than 1% of request errors
 cursor.execute("SELECT * from authors")
 results = cursor.fetchall()
-#print results
+# print results
 
 # Close the database
 db.close()
-
-
-'''
-# Query news database to fetch and print three most popular articles of all time 
-def get_popular_articles():
-	db = psycopg2.connect("dbname=news")
-	cursor = db.cursor()
-	cursor.execute("SELECT * from articles")
-	results = cursor.fetchall()
-	print results
-	db.close()
-
-# Query news db to fetch and print most popular article authors of all time
-def get_popular_authors():
-	db = psycopg2.connect("dbname=news")
-	cursor = db.cursor()
-	cursor.execute("SELECT * from authors")
-	results = cursor.fetchall()
-	print results
-	db.close()
-
-# Query news db to fetch and print days with errors in more than 1% of requests
-def get_error_days():
-	db = psycopg2.connect("dbname=news")
-	cursor = db.cursor()
-	cursor.execute("SELECT * from log")
-	results = cursor.fetchall()
-	print results
-	db.close()
-
-# get_popular_articles()
-# get_popular_authors()
-# get_error_days()'''
