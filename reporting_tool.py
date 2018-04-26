@@ -18,10 +18,15 @@ for result in results:
     print result[0] + " - " + str(result[1]) + " views"
 
 # Execute a query to fetch and print the authors ordered by most views
-cursor.execute("SELECT * from authors")
+cursor.execute(
+    "SELECT name, count(*) as views from articles, authors, log \
+    where log.path like CONCAT('%', articles.slug, '%') \
+    and articles.author = authors.id group by name \
+    order by views desc")
 results = cursor.fetchall()
-# print "authors: "
-# print results
+print "2. Who are the most popular article authors of all time?"
+for result in results:
+    print result[0] + " - " + str(result[1]) + " views"
 
 # Execute a query to fetch and print days with more than 1% of request errors
 cursor.execute("SELECT * from authors")
