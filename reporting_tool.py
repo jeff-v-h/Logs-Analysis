@@ -1,4 +1,4 @@
-# Python2
+#!/usr/bin/python
 
 import psycopg2
 import datetime
