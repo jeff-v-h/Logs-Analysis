@@ -1,6 +1,7 @@
 # Python2
 
 import psycopg2
+import datetime
 
 # Connect to the news sql database with postgresql
 db = psycopg2.connect("dbname=news")
@@ -29,9 +30,21 @@ for result in results:
     print result[0] + " - " + str(result[1]) + " views"
 
 # Execute a query to fetch and print days with more than 1% of request errors
-cursor.execute("SELECT * from authors")
+cursor.execute("""
+    SELECT requests_q.day, errors, requests from
+    (select date(time) as day, count(*) as requests from log group by day)
+    as requests_q,
+    (select date(time) as day, count(*) as errors from log
+    where status = '404 NOT FOUND' group by day)
+    as error_q
+    where requests_q.day = error_q.day and errors > requests/100
+    """)
 results = cursor.fetchall()
-# print results
+print "3. On which days did more than 1% of requests lead to errors?"
+for result in results:
+    print (
+        result[0].strftime('%Y/%m/%d') + " - " +
+        str(round(float(result[1])/result[2] * 100, 2)) + "% views")
 
 # Close the database
 db.close()
